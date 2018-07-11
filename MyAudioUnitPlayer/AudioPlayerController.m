@@ -56,6 +56,7 @@ static AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription();
     NSURLConnection *URLConnection;
     double elcipseTime;
     UInt64 downloadBytes;//当前下载的数据的量
+    BOOL isSeek;
     
    
 }
@@ -293,6 +294,8 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     elcipseTime = 0.0f;
     
     downloadBytes = 0;
+    
+    isSeek = NO;
 }
 
 - (void)dealloc
@@ -422,15 +425,14 @@ void YMAudioFileStreamPacketsCallBack(void* inClientData,
         NSData *packet = [NSData dataWithBytes:inInputData + packetStart length:packetSize];
         [packets addObject:packet];
     }
-    NSLog(@"packets count is %lu",(unsigned long)packets.count);
+    
     //  第五步，因為 parse 出來的 packets 夠多，緩衝內容夠大，因此開始
     //  播放
     
     if (readHead == 0 && [packets count] > (int)([self packetsPerSecond] * 3)) {
         if (_songStatus == StopStatus) {
             [self play];
-            self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(addone) userInfo:nil repeats:YES];
-            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:UITrackingRunLoopMode];
+            
         }
     }
 }
@@ -513,12 +515,19 @@ OSStatus YMPlayerConverterFiller(AudioConverterRef inAudioConverter,
 {
     static AudioStreamPacketDescription aspdesc;
     
+    
     if (readHead >= [packets count]) {
         return 0;
     }
     
     ioData->mNumberBuffers = 1;
     NSData *packet = packets[readHead];
+    double packDuration = streamDescription.mFramesPerPacket/streamDescription.mSampleRate;
+    NSTimeInterval elicpseTime = readHead*packDuration;
+    if (!isSeek) {
+         [self.delegate setCurrentTime:elicpseTime duration:self.duration];
+    }
+   
     void const *data = [packet bytes];
     UInt32 length = (UInt32)[packet length];
     ioData->mBuffers[0].mData = (void *)data;
@@ -561,6 +570,14 @@ OSStatus YMPlayerConverterFiller(AudioConverterRef inAudioConverter,
     [self playIndex:_index];
 }
 
+
+/**
+ seek到特定的时间
+ 判断一个packet的时间是多少，用当前的时间/一个 packet的时间
+ 计算出要 seek的帧的位置
+
+ @param time seek的时间值
+ */
 - (void)seekToTime:(NSTimeInterval)time{
      elcipseTime = time;
     double packDuration = streamDescription.mFramesPerPacket/streamDescription.mSampleRate;
@@ -568,10 +585,10 @@ OSStatus YMPlayerConverterFiller(AudioConverterRef inAudioConverter,
     readHead = seekToPacket;
 }
 - (void)seekStart{
-    [self.timer setFireDate:[NSDate distantFuture]];
+    isSeek = YES;
 }
 - (void)seekEnd{
-    [self.timer setFireDate:[NSDate distantPast]];
+    isSeek = NO;
 }
 
 @end
