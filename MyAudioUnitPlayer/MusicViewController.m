@@ -193,29 +193,29 @@
 }
 
 - (void)playbackComplete{
-    switch (buttonIndex) {
-        case Single:
-            [_progressBar setProgress:0];
-            [self.musicPlayer playIndex:self.musicPlayer.index];
-            break;
-        case Circle:
-            [self.musicPlayer nextSong];
-            break;
-        case Random:{
-            [_progressBar setProgress:0];
-            int index = arc4random()%(_viewModel.musicDataArray.count);
-            [self.musicPlayer playIndex:index];
-        }
-           
-            break;
-            
-        default:
-            break;
-    }
-   
-    dispatch_async(dispatch_get_main_queue(), ^{
-         [self updateUI];
-    });
+//    switch (buttonIndex) {
+//        case Single:
+//            [_progressBar setProgress:0];
+//            [self.musicPlayer playIndex:self.musicPlayer.index];
+//            break;
+//        case Circle:
+//            [self.musicPlayer nextSong];
+//            break;
+//        case Random:{
+//            [_progressBar setProgress:0];
+//            int index = arc4random()%(_viewModel.musicDataArray.count);
+//            [self.musicPlayer playIndex:index];
+//        }
+//           
+//            break;
+//            
+//        default:
+//            break;
+//    }
+//   
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//         [self updateUI];
+//    });
 }
 
 - (void)updatePrograssBar:(NSTimeInterval)time{

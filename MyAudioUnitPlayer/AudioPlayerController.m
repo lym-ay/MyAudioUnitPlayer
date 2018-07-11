@@ -206,6 +206,69 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     _songStatus = PlayStatus;
 }
 
+- (void)pause{
+    Boolean isRunning;
+    AUGraphIsRunning(audioGraph, &isRunning);
+
+    if (!isRunning) {
+        OSStatus status = AUGraphStart(audioGraph);
+        status = AudioOutputUnitStart(outputUnit);
+        _songStatus = PlayStatus;
+    }else{
+        OSStatus status = AUGraphStop(audioGraph);
+        NSAssert(noErr == status, @"AUGraphStart, error: %ld", (signed long)status);
+        status = AudioOutputUnitStop(outputUnit);
+        NSAssert(noErr == status, @"AudioOutputUnitStop, error: %ld", (signed long)status);
+        _songStatus = PauseStatus;
+    }
+  
+    
+}
+
+- (void)stop{
+    
+}
+- (void)prevSong{
+    if (_index == 0) {
+        //如果是第一首，就播放最后一首
+        _index = _musicDataArray.count -1;
+    }else{
+        _index--;
+    }
+    
+    [self playIndex:_index];
+}
+
+- (void)nextSong{
+    if (_index == _musicDataArray.count -1) {
+        //如果是最后一首，播放第一首
+        _index = 0;
+    }else{
+        _index++;
+    }
+    [self playIndex:_index];
+}
+
+
+/**
+ seek到特定的时间
+ 判断一个packet的时间是多少，用当前的时间/一个 packet的时间
+ 计算出要 seek的帧的位置
+ 
+ @param time seek的时间值
+ */
+- (void)seekToTime:(NSTimeInterval)time{
+    elcipseTime = time;
+    double packDuration = streamDescription.mFramesPerPacket/streamDescription.mSampleRate;
+    size_t seekToPacket = time/packDuration;
+    readHead = seekToPacket;
+}
+- (void)seekStart{
+    isSeek = YES;
+}
+- (void)seekEnd{
+    isSeek = NO;
+}
 
 
 - (void)setMusicDataArray:(NSArray *)musicDataArray{
@@ -492,6 +555,7 @@ OSStatus YMPlayerAURenderCallback(void *userData,
             }
         }
         else {
+            //播放结束
             inIoData->mNumberBuffers = 0;
             return -1;
         }
@@ -543,52 +607,6 @@ OSStatus YMPlayerConverterFiller(AudioConverterRef inAudioConverter,
 }
 
 
-- (void)pause{
-    
-}
-- (void)stop{
-    
-}
-- (void)prevSong{
-    if (_index == 0) {
-        //如果是第一首，就播放最后一首
-        _index = _musicDataArray.count -1;
-    }else{
-        _index--;
-    }
-    
-    [self playIndex:_index];
-}
 
-- (void)nextSong{
-    if (_index == _musicDataArray.count -1) {
-        //如果是最后一首，播放第一首
-        _index = 0;
-    }else{
-        _index++;
-    }
-    [self playIndex:_index];
-}
-
-
-/**
- seek到特定的时间
- 判断一个packet的时间是多少，用当前的时间/一个 packet的时间
- 计算出要 seek的帧的位置
-
- @param time seek的时间值
- */
-- (void)seekToTime:(NSTimeInterval)time{
-     elcipseTime = time;
-    double packDuration = streamDescription.mFramesPerPacket/streamDescription.mSampleRate;
-    size_t seekToPacket = time/packDuration;
-    readHead = seekToPacket;
-}
-- (void)seekStart{
-    isSeek = YES;
-}
-- (void)seekEnd{
-    isSeek = NO;
-}
 
 @end

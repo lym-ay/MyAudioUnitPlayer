@@ -36,6 +36,9 @@
     data5.songSinger = @"赵雷";
     data5.songUrl = url5;
     data5.songAlbum = @"新曲-精选全纪录";
+    NSString *picPath5 = [[NSBundle mainBundle] pathForResource:@"cd" ofType:@"jpg"];
+    UIImage *img5 = [UIImage imageNamed:picPath5];
+    data5.songImage = img5;
     [self.musicDataArray addObject:data5];
    
     

@@ -21,6 +21,7 @@
 		325CCC8F20EF4A2F00E843CA /* MusicViewModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 325CCC8520EF4A2D00E843CA /* MusicViewModel.m */; };
 		325CCC9020EF4A2F00E843CA /* MusicData.m in Sources */ = {isa = PBXBuildFile; fileRef = 325CCC8720EF4A2E00E843CA /* MusicData.m */; };
 		325CCC9A20F48D6C00E843CA /* AudioPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 325CCC9820F48D6B00E843CA /* AudioPlayerController.m */; };
+		325CCE1820F5FB4400E843CA /* cd.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 325CCE1720F5FB4300E843CA /* cd.jpg */; };
 		BEE40E002A8F6BEC5C8F20AB /* libPods-MyAudioUnitPlayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBBCB417B5D16922D4839F5D /* libPods-MyAudioUnitPlayer.a */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,7 @@
 		325CCC9820F48D6B00E843CA /* AudioPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioPlayerController.m; sourceTree = "<group>"; };
 		325CCC9920F48D6C00E843CA /* AudioPlayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioPlayerController.h; sourceTree = "<group>"; };
 		325CCC9B20F48DA700E843CA /* MusicPlayerControllerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MusicPlayerControllerDelegate.h; sourceTree = "<group>"; };
+		325CCE1720F5FB4300E843CA /* cd.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = cd.jpg; sourceTree = "<group>"; };
 		426B2CFFEB994FD69BF35C90 /* Pods-MyAudioUnitPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyAudioUnitPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MyAudioUnitPlayer/Pods-MyAudioUnitPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		BD3D800AF6C9ACCFDCC5266D /* Pods-MyAudioUnitPlayer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyAudioUnitPlayer.release.xcconfig"; path = "Pods/Target Support Files/Pods-MyAudioUnitPlayer/Pods-MyAudioUnitPlayer.release.xcconfig"; sourceTree = "<group>"; };
 		DBBCB417B5D16922D4839F5D /* libPods-MyAudioUnitPlayer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MyAudioUnitPlayer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,6 +119,7 @@
 		325CCC7D20EF434000E843CA /* resource */ = {
 			isa = PBXGroup;
 			children = (
+				325CCE1720F5FB4300E843CA /* cd.jpg */,
 				325CCC7820EF433C00E843CA /* mo1.jpg */,
 				325CCC7720EF433C00E843CA /* mo2.jpg */,
 				325CCC7920EF433C00E843CA /* mo3.jpg */,
@@ -204,6 +207,7 @@
 				325CCC6B20EF42B200E843CA /* Assets.xcassets in Resources */,
 				325CCC7C20EF433C00E843CA /* mo3.jpg in Resources */,
 				325CCC6920EF42B000E843CA /* Main.storyboard in Resources */,
+				325CCE1820F5FB4400E843CA /* cd.jpg in Resources */,
 				325CCC7B20EF433C00E843CA /* mo1.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
