@@ -13,7 +13,8 @@
 @property (nonatomic, copy) NSArray *musicDataArray;
 @property (nonatomic, assign) SongStatus songStatus;
 @property (nonatomic, assign) NSUInteger index;//当前播放歌曲的索引值
- @property (nonatomic, weak) id<MusicPlayerControllerDelegate> delegate;
+@property (nonatomic, weak) id<MusicPlayerControllerDelegate> delegate;
+@property (nonatomic, assign) Float32 volume;
 - (void)playIndex:(NSUInteger) index;
 - (void)pause;
 - (void)stop;
@@ -22,4 +23,5 @@
 - (void)seekToTime:(NSTimeInterval)time;
 - (void)seekStart;
 - (void)seekEnd;
+ 
 @end

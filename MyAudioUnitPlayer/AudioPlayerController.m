@@ -198,8 +198,6 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
   
 }
 
-
-
 - (void)play{
     OSStatus status = AUGraphStart(audioGraph);
     status = AudioOutputUnitStart(outputUnit);
@@ -275,7 +273,16 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     _musicDataArray = [musicDataArray copy];
 }
 
+- (void)setVolume:(Float32)volume{
+    AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, volume, 0);
+}
 
+- (Float32)volume{
+    Float32 vol;
+    AudioUnitGetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, &vol);
+    NSLog(@"vol %f",vol);
+    return vol;
+}
 
 #pragma mark -
 #pragma mark NSURLConnectionDelegate

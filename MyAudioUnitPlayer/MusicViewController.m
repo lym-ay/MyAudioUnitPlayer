@@ -25,6 +25,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *totalTimeLabel;
 @property (weak, nonatomic) IBOutlet UISlider *sliderButton;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
+@property (weak, nonatomic) IBOutlet UISlider *volumeSlider;
+@property (weak, nonatomic) IBOutlet UILabel *volumeLabel;
 
 
 //@property (strong, nonatomic) MusicPlayerController *musicPlayer;
@@ -71,6 +73,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                  [weakSelf updateUI];
             });
+            
            
            
             
@@ -81,6 +84,7 @@
           forControlEvents:UIControlEventValueChanged|UIControlEventTouchUpInside];//当滑块上的按钮的位置发生改变，或者被按下时，我们需要让歌曲先暂停。
     [self.sliderButton addTarget:self action:@selector(touchDown)
           forControlEvents:UIControlEventTouchUpInside|UIControlEventTouchUpOutside|UIControlEventTouchCancel];//当滑块被松开，按到外面了，或者取消时，我们需要让歌曲的播放从当前的时间开始播放。
+    [self.volumeSlider addTarget:self action:@selector(changVolume:) forControlEvents:UIControlEventValueChanged];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -114,6 +118,8 @@
     }
     
     [_playButton setImage:[UIImage imageNamed:@"pause"] forState:UIControlStateNormal];
+    
+    self.volumeSlider.value = self.musicPlayer.volume;
     
 }
 
@@ -149,7 +155,10 @@
     [self updateUI];
 }
 
-
+- (void)changVolume:(UISlider *)paramSender{
+    Float32 value = paramSender.value;
+    [self.musicPlayer setVolume:value];
+}
 
 - (void)touchUp{
     [self.musicPlayer seekStart];
