@@ -54,7 +54,15 @@ static AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription();
     size_t readHead;
     
     NSURLConnection *URLConnection;
+    double elcipseTime;
+    UInt64 downloadBytes;//当前下载的数据的量
+    
+   
 }
+@property (nonatomic ,assign) double duration;
+@property (nonatomic ,assign) UInt64 audioDataByteCount;
+@property (nonatomic ,assign) UInt32 bitRate;
+@property (nonatomic, strong) NSTimer *timer;
 
 @end
 
@@ -164,6 +172,7 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
 - (id)init{
     if (self = [super init]) {
        _songStatus =  StopStatus;
+        self.audioDataByteCount = 0;
     }
     
     return self;
@@ -175,15 +184,20 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     }
     
     MusicData *data = self.musicDataArray[index];
-    NSLog(@"data url is %@",data.songUrl);
+   
     _index = index;
     [self buildOutput];
     packets = [[NSMutableArray alloc] init];
     AudioFileStreamOpen((__bridge void * _Nullable)(self), YMAudioFileStreamPropertyListener, YMAudioFileStreamPacketsCallBack, kAudioFileMP3Type, &audioFileStreamID);
     
     URLConnection = [[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:data.songUrl] delegate:self];
+    
+   
+    
   
 }
+
+
 
 - (void)play{
     OSStatus status = AUGraphStart(audioGraph);
@@ -218,6 +232,12 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
 //     第二步：抓到了部分檔案，就交由 Audio Parser 開始 parse 出 data
 //     stream 中的 packet。
     AudioFileStreamParseBytes(audioFileStreamID, (UInt32)[data length], [data bytes], 0);
+    downloadBytes += (UInt64)[data length];
+    if (self.audioDataByteCount != 0) {
+        self.duration = self.audioDataByteCount *8/self.bitRate;
+        NSTimeInterval progress = downloadBytes/self.audioDataByteCount;
+        [self.delegate updatePrograssBar:progress];
+    }
  
 }
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
@@ -267,6 +287,12 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     _songStatus = StopStatus;
     
     memset(&streamDescription, 0, sizeof(AudioStreamBasicDescription));
+    
+    [self.timer invalidate];
+    self.timer = nil;
+    elcipseTime = 0.0f;
+    
+    downloadBytes = 0;
 }
 
 - (void)dealloc
@@ -279,25 +305,84 @@ void YMAudioFileStreamPropertyListener(void* inClientData,
                                               AudioFileStreamPropertyID inPropertyID,
                                               UInt32* ioFlags){
     AudioPlayerController *self = (__bridge AudioPlayerController *)(inClientData);
-    if (inPropertyID == kAudioFileStreamProperty_DataFormat) {
+    NSLog(@"inPropertyID is %u",inPropertyID);
+    
+    if (inPropertyID == kAudioFileStreamProperty_FileFormat) {
+        NSLog(@"1");
+        
+    }else if (inPropertyID == kAudioFileStreamProperty_FormatList){
+           NSLog(@"2");
+    }else if (inPropertyID == kAudioFileStreamProperty_MagicCookieData){
+           NSLog(@"3");
+    }else if (inPropertyID == kAudioFileStreamProperty_AudioDataPacketCount){
+           NSLog(@"4");
+    }else if (inPropertyID == kAudioFileStreamProperty_MaximumPacketSize){
+           NSLog(@"5");
+    }else if (inPropertyID == kAudioFileStreamProperty_DataOffset){
+           NSLog(@"6");
+    }else if (inPropertyID == kAudioFileStreamProperty_ChannelLayout){
+           NSLog(@"7");
+    }else if (inPropertyID == kAudioFileStreamProperty_PacketToFrame){
+           NSLog(@"8");
+    }else if (inPropertyID == kAudioFileStreamProperty_FrameToPacket){
+           NSLog(@"9");
+    }else if (inPropertyID == kAudioFileStreamProperty_PacketToByte){
+           NSLog(@"10");
+    }else if (inPropertyID == kAudioFileStreamProperty_ByteToPacket){
+           NSLog(@"11");
+    }else if (inPropertyID == kAudioFileStreamProperty_PacketTableInfo){
+           NSLog(@"12");
+    }else if (inPropertyID == kAudioFileStreamProperty_PacketSizeUpperBound){
+           NSLog(@"13");
+    }else if (inPropertyID == kAudioFileStreamProperty_AverageBytesPerPacket){
+           NSLog(@"14");
+    }else if (inPropertyID == kAudioFileStreamProperty_InfoDictionary){
+           NSLog(@"15");
+    }else if (inPropertyID == kAudioFileStreamProperty_DataFormat) {
+        NSLog(@"16");
         UInt32 dataSize=0;
         OSStatus status = 0;
         AudioStreamBasicDescription audioStreamDescription;
         Boolean wirteable = false;
         status = AudioFileStreamGetPropertyInfo(inAudioFileStream, kAudioFileStreamProperty_DataFormat, &dataSize, &wirteable);
         status = AudioFileStreamGetProperty(inAudioFileStream, inPropertyID, &dataSize, &audioStreamDescription);
-        NSLog(@"mSampleRate: %f", audioStreamDescription.mSampleRate);
-        NSLog(@"mFormatID: %u", audioStreamDescription.mFormatID);
-        NSLog(@"mFormatFlags: %u", audioStreamDescription.mFormatFlags);
-        NSLog(@"mBytesPerPacket: %u", audioStreamDescription.mBytesPerPacket);
-        NSLog(@"mFramesPerPacket: %u", audioStreamDescription.mFramesPerPacket);
-        NSLog(@"mBytesPerFrame: %u", audioStreamDescription.mBytesPerFrame);
-        NSLog(@"mChannelsPerFrame: %u", audioStreamDescription.mChannelsPerFrame);
-        NSLog(@"mBitsPerChannel: %u", audioStreamDescription.mBitsPerChannel);
-        NSLog(@"mReserved: %u", audioStreamDescription.mReserved);
+//        NSLog(@"mSampleRate: %f", audioStreamDescription.mSampleRate);
+//        NSLog(@"mFormatID: %u", audioStreamDescription.mFormatID);
+//        NSLog(@"mFormatFlags: %u", audioStreamDescription.mFormatFlags);
+//        NSLog(@"mBytesPerPacket: %u", audioStreamDescription.mBytesPerPacket);
+//        NSLog(@"mFramesPerPacket: %u", audioStreamDescription.mFramesPerPacket);
+//        NSLog(@"mBytesPerFrame: %u", audioStreamDescription.mBytesPerFrame);
+//        NSLog(@"mChannelsPerFrame: %u", audioStreamDescription.mChannelsPerFrame);
+//        NSLog(@"mBitsPerChannel: %u", audioStreamDescription.mBitsPerChannel);
+//        NSLog(@"mReserved: %u", audioStreamDescription.mReserved);
         
         [self _createAudioQueueWithAudioStreamDescription:&audioStreamDescription];
         
+    }else if(inPropertyID == kAudioFileStreamProperty_BitRate){
+           NSLog(@"17");
+        UInt32 bitRate;
+        UInt32 bitRateSize = sizeof(bitRate);
+        OSStatus status = AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_BitRate, &bitRateSize, &bitRate);
+        if (status != noErr) {
+            
+        }else{
+             self.bitRate = bitRate;
+        }
+        
+       
+    }else if(inPropertyID == kAudioFileStreamProperty_AudioDataByteCount){
+           NSLog(@"18");
+        UInt64 audioDataByteCount;
+        UInt32 byteCountSize = sizeof(audioDataByteCount);
+        OSStatus status = AudioFileStreamGetProperty(inAudioFileStream, kAudioFileStreamProperty_AudioDataByteCount, &byteCountSize, &audioDataByteCount);
+        if (status != noErr)
+        {
+            //错误处理
+        }else {
+            self.audioDataByteCount = audioDataByteCount;
+        }
+    }else if (inPropertyID == kAudioFileStreamProperty_ReadyToProducePackets){
+        NSLog(@"19");
     }
     
 }
@@ -317,6 +402,7 @@ void YMAudioFileStreamPacketsCallBack(void* inClientData,
                                              UInt32 inNumberPackets,
                                              const void* inInputData,
                                              AudioStreamPacketDescription *inPacketDescriptions){
+ 
     AudioPlayerController *self =  (__bridge AudioPlayerController *)(inClientData);
     [self _storePacketsWithNumberOfBytes:inNumberBytes numberOfPackets:inNumberPackets inputData:inInputData packetDescriptions:inPacketDescriptions];
     
@@ -327,6 +413,8 @@ void YMAudioFileStreamPacketsCallBack(void* inClientData,
                              inputData:(const void *)inInputData
                     packetDescriptions:(AudioStreamPacketDescription *)inPacketDescriptions
 {
+    
+    
     for (int i = 0; i < inNumberPackets; ++i) {
         SInt64 packetStart = inPacketDescriptions[i].mStartOffset;
         UInt32 packetSize = inPacketDescriptions[i].mDataByteSize;
@@ -334,19 +422,22 @@ void YMAudioFileStreamPacketsCallBack(void* inClientData,
         NSData *packet = [NSData dataWithBytes:inInputData + packetStart length:packetSize];
         [packets addObject:packet];
     }
-    
+    NSLog(@"packets count is %lu",(unsigned long)packets.count);
     //  第五步，因為 parse 出來的 packets 夠多，緩衝內容夠大，因此開始
     //  播放
-    NSLog(@"readHead is %zu",readHead);
-    NSLog(@"[packets count] is %lu",(unsigned long)[packets count]);
-    NSLog(@"[self packetsPerSecond] is %f",[self packetsPerSecond] * 3);
+    
     if (readHead == 0 && [packets count] > (int)([self packetsPerSecond] * 3)) {
-        NSLog(@"_songStatus is %lu",(unsigned long)_songStatus);
         if (_songStatus == StopStatus) {
-            NSLog(@"play");
             [self play];
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(addone) userInfo:nil repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:UITrackingRunLoopMode];
         }
     }
+}
+
+- (void)addone{
+    
+    [self.delegate setCurrentTime:elcipseTime++ duration:self.duration];
 }
 
 OSStatus YMPlayerAURenderCallback(void *userData,
@@ -355,6 +446,7 @@ OSStatus YMPlayerAURenderCallback(void *userData,
                                          UInt32 inBusNumber,
                                          UInt32 inNumberFrames,
                                          AudioBufferList *ioData){
+ 
     AudioPlayerController *self = (__bridge AudioPlayerController *)(userData);
     OSStatus status = [self callbackWithNumberOfFrames:inNumberFrames ioData:ioData busNumber:inBusNumber];
     if (status != noErr) {
@@ -379,6 +471,7 @@ OSStatus YMPlayerAURenderCallback(void *userData,
                                                 YMPlayerConverterFiller,
                                                 (__bridge void *)(self),
                                                 &packetSize, renderBufferList, NULL);
+                
                 if (noErr != status) {
                     [self pause];
                     return -1;
@@ -390,6 +483,7 @@ OSStatus YMPlayerAURenderCallback(void *userData,
                     inIoData->mNumberBuffers = 1;
                     inIoData->mBuffers[0].mNumberChannels = 2;
                     inIoData->mBuffers[0].mDataByteSize = renderBufferList->mBuffers[0].mDataByteSize;
+                   
                     inIoData->mBuffers[0].mData = renderBufferList->mBuffers[0].mData;
                     renderBufferList->mBuffers[0].mDataByteSize = renderBufferSize;
                 }
@@ -468,13 +562,16 @@ OSStatus YMPlayerConverterFiller(AudioConverterRef inAudioConverter,
 }
 
 - (void)seekToTime:(NSTimeInterval)time{
-    
+     elcipseTime = time;
+    double packDuration = streamDescription.mFramesPerPacket/streamDescription.mSampleRate;
+    size_t seekToPacket = time/packDuration;
+    readHead = seekToPacket;
 }
 - (void)seekStart{
-    
+    [self.timer setFireDate:[NSDate distantFuture]];
 }
 - (void)seekEnd{
-    
+    [self.timer setFireDate:[NSDate distantPast]];
 }
 
 @end
