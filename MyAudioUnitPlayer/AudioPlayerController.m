@@ -273,6 +273,12 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
     _musicDataArray = [musicDataArray copy];
 }
 
+
+/**
+ 设置音量
+
+ @param volume 音量的范围0~1
+ */
 - (void)setVolume:(Float32)volume{
     AudioUnitSetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, volume, 0);
 }
@@ -280,7 +286,6 @@ AudioStreamBasicDescription YMSignedIntLinearPCMStreamDescription(){
 - (Float32)volume{
     Float32 vol;
     AudioUnitGetParameter(mixerUnit, kMultiChannelMixerParam_Volume, kAudioUnitScope_Input, 0, &vol);
-    NSLog(@"vol %f",vol);
     return vol;
 }
 
@@ -505,11 +510,6 @@ void YMAudioFileStreamPacketsCallBack(void* inClientData,
             
         }
     }
-}
-
-- (void)addone{
-    
-    [self.delegate setCurrentTime:elcipseTime++ duration:self.duration];
 }
 
 OSStatus YMPlayerAURenderCallback(void *userData,
